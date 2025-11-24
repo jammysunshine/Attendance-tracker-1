@@ -13,6 +13,21 @@ body {
     background-attachment: fixed;
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
 }
 
 @theme inline {
@@ -54,7 +69,7 @@ body {
 }
 
 :root {
-    --radius: 0.75rem;
+    --radius: 0.875rem;
     --background: oklch(0.99 0 0);
     --foreground: oklch(0.15 0 0);
     --card: oklch(1 0 0);
@@ -128,6 +143,22 @@ body {
     }
 
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground antialiased;
+    }
+}
+
+@layer utilities {
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-hover {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+        transform: translateY(-2px);
     }
 }
