@@ -65,9 +65,9 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto space-y-6">
             {/* Colorful Stats Header */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                <div className="bg-blue-600 rounded-2xl shadow-lg p-5 text-white">
                     <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                        <div className="p-3 bg-blue-700 rounded-xl">
                             <Users className="w-6 h-6" />
                         </div>
                         <TrendingUp className="w-5 h-5 opacity-50" />
@@ -76,9 +76,9 @@ export default function Dashboard() {
                     <p className="text-blue-100 text-sm font-medium">Total Students</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                <div className="bg-green-600 rounded-2xl shadow-lg p-5 text-white">
                     <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                        <div className="p-3 bg-green-700 rounded-xl">
                             <CheckCircle2 className="w-6 h-6" />
                         </div>
                         <Award className="w-5 h-5 opacity-50" />
@@ -87,9 +87,9 @@ export default function Dashboard() {
                     <p className="text-green-100 text-sm font-medium">Completed Goal</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                <div className="bg-orange-600 rounded-2xl shadow-lg p-5 text-white">
                     <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                        <div className="p-3 bg-orange-700 rounded-xl">
                             <AlertTriangle className="w-6 h-6" />
                         </div>
                         <Target className="w-5 h-5 opacity-50" />
@@ -98,9 +98,9 @@ export default function Dashboard() {
                     <p className="text-orange-100 text-sm font-medium">Need Attention</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                <div className="bg-purple-600 rounded-2xl shadow-lg p-5 text-white">
                     <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                        <div className="p-3 bg-purple-700 rounded-xl">
                             <Clock className="w-6 h-6" />
                         </div>
                         <Calendar className="w-5 h-5 opacity-50" />
@@ -111,14 +111,14 @@ export default function Dashboard() {
             </div>
 
             {/* Month Header */}
-            <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl shadow-lg p-4 text-white">
+            <div className="bg-gray-800 rounded-2xl shadow-lg p-4 text-white">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <Calendar className="w-5 h-5" />
                         <h2 className="text-xl font-bold">{monthName}</h2>
                     </div>
                     <div className="flex items-center space-x-2 text-sm">
-                        <span className="px-3 py-1 bg-white/10 rounded-lg">Target: 12 classes</span>
+                        <span className="px-3 py-1 bg-gray-700 rounded-lg">Target: 12 classes</span>
                     </div>
                 </div>
             </div>
@@ -134,30 +134,34 @@ export default function Dashboard() {
 
                         const statusConfig = {
                             completed: {
-                                gradient: 'from-green-500 to-emerald-600',
+                                color: 'bg-green-600',
                                 bg: 'bg-green-50',
                                 text: 'text-green-700',
+                                barColor: 'bg-green-500',
                                 icon: CheckCircle2,
                                 label: 'Completed'
                             },
                             'on-track': {
-                                gradient: 'from-blue-500 to-cyan-600',
+                                color: 'bg-blue-600',
                                 bg: 'bg-blue-50',
                                 text: 'text-blue-700',
+                                barColor: 'bg-blue-500',
                                 icon: TrendingUp,
                                 label: 'On Track'
                             },
                             attention: {
-                                gradient: 'from-yellow-500 to-orange-500',
+                                color: 'bg-orange-600',
                                 bg: 'bg-orange-50',
                                 text: 'text-orange-700',
+                                barColor: 'bg-orange-500',
                                 icon: AlertTriangle,
                                 label: 'Needs Attention'
                             },
                             critical: {
-                                gradient: 'from-red-500 to-pink-600',
+                                color: 'bg-red-600',
                                 bg: 'bg-red-50',
                                 text: 'text-red-700',
+                                barColor: 'bg-red-500',
                                 icon: AlertTriangle,
                                 label: 'Critical'
                             }
@@ -167,9 +171,9 @@ export default function Dashboard() {
                         const StatusIcon = config.icon;
 
                         return (
-                            <div key={student.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-100">
-                                {/* Gradient Top Bar */}
-                                <div className={`h-2 bg-gradient-to-r ${config.gradient}`}></div>
+                            <div key={student.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+                                {/* Colored Top Bar */}
+                                <div className={`h-2 ${config.color}`}></div>
 
                                 <div className="p-5">
                                     {/* Header */}
@@ -202,11 +206,11 @@ export default function Dashboard() {
                                             </div>
                                         </div>
 
-                                        {/* Gradient Progress Bar */}
+                                        {/* Progress Bar */}
                                         <div className="relative">
                                             <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                                                 <div
-                                                    className={`bg-gradient-to-r ${config.gradient} h-3 rounded-full transition-all duration-700 shadow-lg`}
+                                                    className={`${config.barColor} h-3 rounded-full transition-all duration-700`}
                                                     style={{ width: `${percentage}%` }}
                                                 ></div>
                                             </div>
@@ -222,7 +226,7 @@ export default function Dashboard() {
                                                 {[...Array(12)].map((_, i) => (
                                                     <div
                                                         key={i}
-                                                        className={`w-1.5 h-1.5 rounded-full ${i < count ? `bg-gradient-to-r ${config.gradient}` : 'bg-gray-200'
+                                                        className={`w-1.5 h-1.5 rounded-full ${i < count ? config.barColor : 'bg-gray-200'
                                                             }`}
                                                     ></div>
                                                 ))}
