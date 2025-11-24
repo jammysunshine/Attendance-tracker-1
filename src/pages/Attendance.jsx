@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Clock } from 'lucide-react';
+import { Check, X, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,12 +119,14 @@ export default function Attendance() {
 
     return (
         <div className="space-y-6">
-            <Card>
+            <Card className="border-0 shadow-lg">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle>Attendance</CardTitle>
-                            <CardDescription>{presentCount} of {students.length} present</CardDescription>
+                            <CardTitle className="text-2xl">Attendance Tracking</CardTitle>
+                            <CardDescription className="text-lg mt-1">
+                                <span className="font-semibold text-primary">{presentCount}</span> of {students.length} students present
+                            </CardDescription>
                         </div>
                         <div className="flex items-center gap-3">
                             <Input
@@ -133,7 +135,10 @@ export default function Attendance() {
                                 onChange={(e) => setSelectedDate(e.target.value)}
                                 className="w-auto"
                             />
-                            <Badge variant="outline">{currentDay}</Badge>
+                            <Badge variant="outline" className="text-sm px-3 py-1">
+                                <CalendarIcon className="w-3 h-3 mr-1" />
+                                {currentDay}
+                            </Badge>
                         </div>
                     </div>
                 </CardHeader>
@@ -142,7 +147,7 @@ export default function Attendance() {
             {loading ? (
                 <p className="text-muted-foreground">Loading...</p>
             ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {sortedStudents.map((student) => {
                         const isPresent = !!attendanceRecords[student.id];
                         const isPreferredDay = student.preferredDays?.includes(currentDay);
@@ -150,23 +155,34 @@ export default function Attendance() {
                         const currentTime = isPresent ? attendanceRecords[student.id].time : student.preferredTime || '18:30';
 
                         return (
-                            <Card key={student.id} className={isPreferredDay ? 'border-blue-200 bg-blue-50/50' : ''}>
-                                <CardContent className="p-4">
+                            <Card
+                                key={student.id}
+                                className={`border-0 shadow-md hover:shadow-lg transition-all ${isPreferredDay ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-l-blue-500' : ''
+                                    }`}
+                            >
+                                <CardContent className="p-5">
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${isPresent ? 'bg-green-500' : 'bg-muted'
+                                        <div className="flex items-center gap-4">
+                                            <div className={`flex h-12 w-12 items-center justify-center rounded-full shadow-md ${isPresent
+                                                    ? 'bg-gradient-to-br from-green-500 to-emerald-500'
+                                                    : 'bg-gradient-to-br from-gray-300 to-gray-400'
                                                 }`}>
                                                 {isPresent ? (
-                                                    <Check className="h-5 w-5 text-white" />
+                                                    <Check className="h-6 w-6 text-white" />
                                                 ) : (
-                                                    <X className="h-5 w-5 text-muted-foreground" />
+                                                    <X className="h-6 w-6 text-white" />
                                                 )}
                                             </div>
                                             <div>
                                                 <div className="flex items-baseline gap-2">
-                                                    <h3 className="font-semibold">{student.name}</h3>
-                                                    <span className="text-xs text-muted-foreground">Grade {student.grade}</span>
+                                                    <h3 className="font-bold text-lg">{student.name}</h3>
+                                                    <span className="text-sm text-muted-foreground">Grade {student.grade}</span>
                                                 </div>
+                                                {isPreferredDay && (
+                                                    <Badge variant="outline" className="mt-1 text-xs">
+                                                        Preferred Day
+                                                    </Badge>
+                                                )}
                                             </div>
                                         </div>
 
@@ -222,7 +238,9 @@ export default function Attendance() {
                                             ) : (
                                                 <Button
                                                     onClick={() => handleMarkPresent(student)}
+                                                    className="shadow-md"
                                                 >
+                                                    <Check className="mr-2 h-4 w-4" />
                                                     Mark Present
                                                 </Button>
                                             )}

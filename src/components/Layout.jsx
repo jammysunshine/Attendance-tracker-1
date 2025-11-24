@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, UserCheck, Users, FileText, LogOut } from 'lucide-react';
+import { LayoutDashboard, UserCheck, Users, FileText, LogOut, Sparkles } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 export default function Layout({ children }) {
     const { logout } = useAuth();
@@ -25,16 +26,21 @@ export default function Layout({ children }) {
     ];
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Compact Top Navigation */}
-            <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4">
-                    <div className="flex justify-between items-center h-14">
+        <div className="min-h-screen">
+            {/* Modern Top Navigation */}
+            <nav className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-8">
-                            <span className="font-bold text-lg bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                TutorTracker
-                            </span>
-                            <div className="flex space-x-1">
+                            <div className="flex items-center gap-2">
+                                <div className="p-2 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl">
+                                    <Sparkles className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="font-bold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                                    TutorTracker
+                                </span>
+                            </div>
+                            <div className="flex space-x-2">
                                 {navItems.map((item) => {
                                     const Icon = item.icon;
                                     const isActive = location.pathname === item.path;
@@ -42,30 +48,31 @@ export default function Layout({ children }) {
                                         <Link
                                             key={item.name}
                                             to={item.path}
-                                            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : 'text-gray-600 hover:bg-gray-100'
-                                                }`}
                                         >
-                                            <Icon className="w-4 h-4" />
-                                            <span>{item.name}</span>
+                                            <Button
+                                                variant={isActive ? "default" : "ghost"}
+                                                className={isActive ? "shadow-md" : ""}
+                                            >
+                                                <Icon className="w-4 h-4 mr-2" />
+                                                {item.name}
+                                            </Button>
                                         </Link>
                                     );
                                 })}
                             </div>
                         </div>
-                        <button
+                        <Button
+                            variant="outline"
                             onClick={handleLogout}
-                            className="flex items-center space-x-1.5 px-3 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                            <LogOut className="w-4 h-4" />
-                            <span>Logout</span>
-                        </button>
+                            <LogOut className="w-4 h-4 mr-2" />
+                            Logout
+                        </Button>
                     </div>
                 </div>
             </nav>
 
-            <main className="max-w-7xl mx-auto py-5 px-4">
+            <main className="max-w-7xl mx-auto py-8 px-6">
                 {children}
             </main>
         </div>
