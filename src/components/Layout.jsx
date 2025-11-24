@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, UserCheck, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, UserCheck, Users, FileText, LogOut } from 'lucide-react';
 
 export default function Layout({ children }) {
     const { logout } = useAuth();
@@ -21,6 +21,7 @@ export default function Layout({ children }) {
         { name: 'Dashboard', path: '/', icon: LayoutDashboard },
         { name: 'Attendance', path: '/attendance', icon: UserCheck },
         { name: 'Students', path: '/students', icon: Users },
+        { name: 'Reports', path: '/reports', icon: FileText },
     ];
 
     return (
@@ -42,8 +43,8 @@ export default function Layout({ children }) {
                                             key={item.name}
                                             to={item.path}
                                             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${isActive
-                                                    ? 'bg-blue-100 text-blue-700'
-                                                    : 'text-gray-600 hover:bg-gray-100'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-gray-600 hover:bg-gray-100'
                                                 }`}
                                         >
                                             <Icon className="w-4 h-4" />

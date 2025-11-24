@@ -7,6 +7,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Students from './pages/Students';
 import Attendance from './pages/Attendance';
 import Dashboard from './pages/Dashboard';
+import Reports from './pages/Reports';
 import Layout from './components/Layout';
 
 function App() {
@@ -41,6 +42,16 @@ function App() {
               <PrivateRoute>
                 <Layout>
                   <Attendance />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reports"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <Reports />
                 </Layout>
               </PrivateRoute>
             }
