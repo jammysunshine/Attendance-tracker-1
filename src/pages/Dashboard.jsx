@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { Users, TrendingUp, CheckCircle2, AlertTriangle, Calendar, Award, Target, Clock } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
     const [students, setStudents] = useState([]);
@@ -61,180 +64,142 @@ export default function Dashboard() {
     const totalClasses = Object.values(attendanceCounts).reduce((sum, count) => sum + count, 0);
     const avgClasses = students.length > 0 ? (totalClasses / students.length).toFixed(1) : 0;
 
+    const statusConfig = {
+        completed: {
+            variant: 'default',
+            className: 'bg-green-100 text-green-700 hover:bg-green-100',
+            label: 'Completed'
+        },
+        'on-track': {
+            variant: 'default',
+            className: 'bg-blue-100 text-blue-700 hover:bg-blue-100',
+            label: 'On Track'
+        },
+        attention: {
+            variant: 'default',
+            className: 'bg-orange-100 text-orange-700 hover:bg-orange-100',
+            label: 'Needs Attention'
+        },
+        critical: {
+            variant: 'destructive',
+            label: 'Critical'
+        }
+    };
+
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
-            {/* Colorful Stats Header */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-blue-600 rounded-2xl shadow-lg p-5 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-blue-700 rounded-xl">
-                            <Users className="w-6 h-6" />
-                        </div>
-                        <TrendingUp className="w-5 h-5 opacity-50" />
-                    </div>
-                    <p className="text-3xl font-bold mb-1">{students.length}</p>
-                    <p className="text-blue-100 text-sm font-medium">Total Students</p>
-                </div>
+        <div className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Total Students</CardTitle>
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{students.length}</div>
+                        <p className="text-xs text-muted-foreground">Active students</p>
+                    </CardContent>
+                </Card>
 
-                <div className="bg-green-600 rounded-2xl shadow-lg p-5 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-green-700 rounded-xl">
-                            <CheckCircle2 className="w-6 h-6" />
-                        </div>
-                        <Award className="w-5 h-5 opacity-50" />
-                    </div>
-                    <p className="text-3xl font-bold mb-1">{completedCount}</p>
-                    <p className="text-green-100 text-sm font-medium">Completed Goal</p>
-                </div>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Completed Goal</CardTitle>
+                        <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{completedCount}</div>
+                        <p className="text-xs text-muted-foreground">12+ classes this month</p>
+                    </CardContent>
+                </Card>
 
-                <div className="bg-orange-600 rounded-2xl shadow-lg p-5 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-orange-700 rounded-xl">
-                            <AlertTriangle className="w-6 h-6" />
-                        </div>
-                        <Target className="w-5 h-5 opacity-50" />
-                    </div>
-                    <p className="text-3xl font-bold mb-1">{needsAttentionCount}</p>
-                    <p className="text-orange-100 text-sm font-medium">Need Attention</p>
-                </div>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Need Attention</CardTitle>
+                        <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{needsAttentionCount}</div>
+                        <p className="text-xs text-muted-foreground">Below target pace</p>
+                    </CardContent>
+                </Card>
 
-                <div className="bg-purple-600 rounded-2xl shadow-lg p-5 text-white">
-                    <div className="flex items-center justify-between mb-3">
-                        <div className="p-3 bg-purple-700 rounded-xl">
-                            <Clock className="w-6 h-6" />
-                        </div>
-                        <Calendar className="w-5 h-5 opacity-50" />
-                    </div>
-                    <p className="text-3xl font-bold mb-1">{avgClasses}</p>
-                    <p className="text-purple-100 text-sm font-medium">Avg Classes</p>
-                </div>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Avg Classes</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">{avgClasses}</div>
+                        <p className="text-xs text-muted-foreground">Per student</p>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Month Header */}
-            <div className="bg-gray-800 rounded-2xl shadow-lg p-4 text-white">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <Calendar className="w-5 h-5" />
-                        <h2 className="text-xl font-bold">{monthName}</h2>
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Calendar className="h-5 w-5" />
+                            <CardTitle>{monthName}</CardTitle>
+                        </div>
+                        <Badge variant="outline">Target: 12 classes</Badge>
                     </div>
-                    <div className="flex items-center space-x-2 text-sm">
-                        <span className="px-3 py-1 bg-gray-700 rounded-lg">Target: 12 classes</span>
-                    </div>
-                </div>
-            </div>
+                </CardHeader>
+            </Card>
 
             {loading ? (
-                <p className="text-gray-500">Loading...</p>
+                <p className="text-muted-foreground">Loading...</p>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid gap-4 md:grid-cols-2">
                     {students.map(student => {
                         const count = attendanceCounts[student.id] || 0;
                         const status = getStatus(count);
                         const percentage = Math.min((count / 12) * 100, 100);
-
-                        const statusConfig = {
-                            completed: {
-                                color: 'bg-green-600',
-                                bg: 'bg-green-50',
-                                text: 'text-green-700',
-                                barColor: 'bg-green-500',
-                                icon: CheckCircle2,
-                                label: 'Completed'
-                            },
-                            'on-track': {
-                                color: 'bg-blue-600',
-                                bg: 'bg-blue-50',
-                                text: 'text-blue-700',
-                                barColor: 'bg-blue-500',
-                                icon: TrendingUp,
-                                label: 'On Track'
-                            },
-                            attention: {
-                                color: 'bg-orange-600',
-                                bg: 'bg-orange-50',
-                                text: 'text-orange-700',
-                                barColor: 'bg-orange-500',
-                                icon: AlertTriangle,
-                                label: 'Needs Attention'
-                            },
-                            critical: {
-                                color: 'bg-red-600',
-                                bg: 'bg-red-50',
-                                text: 'text-red-700',
-                                barColor: 'bg-red-500',
-                                icon: AlertTriangle,
-                                label: 'Critical'
-                            }
-                        };
-
                         const config = statusConfig[status];
-                        const StatusIcon = config.icon;
 
                         return (
-                            <div key={student.id} className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-                                {/* Colored Top Bar */}
-                                <div className={`h-2 ${config.color}`}></div>
-
-                                <div className="p-5">
-                                    {/* Header */}
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex-1">
-                                            <h3 className="text-lg font-bold text-gray-800 mb-1">{student.name}</h3>
-                                            <div className="flex items-center space-x-2">
-                                                <span className="text-sm text-gray-500">Grade {student.grade}</span>
-                                                <span className="text-gray-300">•</span>
-                                                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${config.bg} ${config.text}`}>
-                                                    {config.label}
-                                                </span>
-                                            </div>
+                            <Card key={student.id}>
+                                <CardHeader>
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1">
+                                            <CardTitle className="text-lg">{student.name}</CardTitle>
+                                            <CardDescription>Grade {student.grade}</CardDescription>
                                         </div>
-                                        <div className={`p-3 rounded-xl ${config.bg}`}>
-                                            <StatusIcon className={`w-6 h-6 ${config.text}`} />
+                                        <Badge className={config.className}>
+                                            {config.label}
+                                        </Badge>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="flex items-end justify-between">
+                                        <div>
+                                            <p className="text-xs text-muted-foreground">Classes Attended</p>
+                                            <p className="text-3xl font-bold">{count}<span className="text-lg text-muted-foreground">/12</span></p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs text-muted-foreground">Completion</p>
+                                            <p className="text-2xl font-bold">{Math.round(percentage)}%</p>
                                         </div>
                                     </div>
-
-                                    {/* Progress Section */}
-                                    <div className="space-y-3">
-                                        <div className="flex items-end justify-between">
-                                            <div>
-                                                <p className="text-xs text-gray-500 mb-1">Classes Attended</p>
-                                                <p className="text-3xl font-bold text-gray-800">{count}<span className="text-lg text-gray-400">/12</span></p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-xs text-gray-500 mb-1">Completion</p>
-                                                <p className="text-2xl font-bold text-gray-800">{Math.round(percentage)}%</p>
-                                            </div>
+                                    <Progress value={percentage} className="h-2" />
+                                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                                        <div className="flex items-center gap-1">
+                                            <Target className="h-3 w-3" />
+                                            <span>{12 - count} more to goal</span>
                                         </div>
-
-                                        {/* Progress Bar */}
-                                        <div className="relative">
-                                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                        <div className="flex gap-0.5">
+                                            {[...Array(12)].map((_, i) => (
                                                 <div
-                                                    className={`${config.barColor} h-3 rounded-full transition-all duration-700`}
-                                                    style={{ width: `${percentage}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-
-                                        {/* Mini Stats */}
-                                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                                            <div className="flex items-center space-x-2 text-xs text-gray-500">
-                                                <Target className="w-3 h-3" />
-                                                <span>{12 - count} more to goal</span>
-                                            </div>
-                                            <div className="flex items-center space-x-1">
-                                                {[...Array(12)].map((_, i) => (
-                                                    <div
-                                                        key={i}
-                                                        className={`w-1.5 h-1.5 rounded-full ${i < count ? config.barColor : 'bg-gray-200'
-                                                            }`}
-                                                    ></div>
-                                                ))}
-                                            </div>
+                                                    key={i}
+                                                    className={`w-1.5 h-1.5 rounded-full ${i < count ? 'bg-primary' : 'bg-muted'
+                                                        }`}
+                                                />
+                                            ))}
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                </CardContent>
+                            </Card>
                         );
                     })}
                 </div>

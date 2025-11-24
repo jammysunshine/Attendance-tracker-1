@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn } from 'lucide-react';
+import { LogIn, AlertCircle } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Login() {
     const [email, setEmail] = useState('');
@@ -25,62 +29,55 @@ export default function Login() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4">
-            <div className="max-w-md w-full">
-                <div className="bg-white rounded-2xl shadow-xl p-8">
-                    <div className="text-center mb-8">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl mb-4">
-                            <LogIn className="w-8 h-8 text-white" />
-                        </div>
-                        <h2 className="text-3xl font-bold text-gray-800">Welcome Back</h2>
-                        <p className="text-gray-500 mt-2">Sign in to manage your tuition</p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+            <Card className="w-full max-w-md">
+                <CardHeader className="space-y-1 text-center">
+                    <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center mb-4">
+                        <LogIn className="w-6 h-6 text-white" />
                     </div>
-
+                    <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+                    <CardDescription>Sign in to manage your tuition</CardDescription>
+                </CardHeader>
+                <CardContent>
                     {error && (
-                        <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
-                            <p className="text-red-700 text-sm">{error}</p>
+                        <div className="mb-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-start gap-2">
+                            <AlertCircle className="w-4 h-4 text-destructive mt-0.5" />
+                            <p className="text-sm text-destructive">{error}</p>
                         </div>
                     )}
-
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Email Address
-                            </label>
-                            <input
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="email">Email Address</Label>
+                            <Input
+                                id="email"
                                 type="email"
+                                placeholder="you@example.com"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
-                                placeholder="you@example.com"
                             />
                         </div>
-
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Password
-                            </label>
-                            <input
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                                id="password"
                                 type="password"
+                                placeholder="••••••••"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
-                                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
-                                placeholder="••••••••"
                             />
                         </div>
-
-                        <button
-                            disabled={loading}
+                        <Button
                             type="submit"
-                            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all shadow-lg disabled:opacity-50"
+                            className="w-full"
+                            disabled={loading}
                         >
                             {loading ? 'Signing in...' : 'Sign In'}
-                        </button>
+                        </Button>
                     </form>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
