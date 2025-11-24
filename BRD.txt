@@ -1,0 +1,180 @@
+# 📚 Project Documentation: Tuition PWA Attendance Tracker
+
+This document details the requirements, enhanced design, and implementation plan for a Progressive Web Application (PWA) designed to manage student attendance, track monthly class counts, and provide alerts for a private tuition business.
+
+-----
+
+## 1\. Introduction & Project Goals
+
+The primary goal is to create a **Progressive Web Application (PWA)** that offers a fast, reliable, and mobile-friendly interface for managing a small and variable student roster (currently 6 students). The application must be accessible via any web browser and installable on a home screen like a native app.
+
+### Core Objectives:
+
+1.  **Persistent Storage:** All data must be stored securely and persistently (Firebase Firestore).
+2.  **Easy Attendance Marking:** Quickly mark attendance for the current day or a past date.
+3.  **Smart Defaults:** Use the configured student schedule (multiple preferred days) to pre-fill attendance data.
+4.  **Reporting & Alerts:** Instantly track each student's progress against the **12 classes per month** goal.
+5.  **Self-Service Management:** Allow the tutor to manage the student roster (CRUD operations) directly within the application.
+
+-----
+
+## 2\. Functional Requirements
+
+### 2.1. Attendance Tracking Requirements
+
+| ID | Requirement | Detail |
+| :--- | :--- | :--- |
+| **FR-01** | **Daily Marking** | User must see all students and select a checkbox to mark attendance for the **current date**. |
+| **FR-02** | **Past Date Marking** | User must be able to select any **older date** via a date picker and mark attendance for that specific day. |
+| **FR-03** | **Time Override** | When marking attendance, the time field must **default** to the student's configured preferred time but allow the user to change it. |
+| **FR-04** | **Monthly Goal Check** | The system must track and display the count of classes (attendance records) per student against the **12 classes per month** goal for the current month. |
+
+### 2.2. Student Management Requirements
+
+| ID | Requirement | Detail |
+| :--- | :--- | :--- |
+| **FR-05** | **CRUD Operations** | User must be able to **Add**, **Edit**, and **Delete** students from the web application. |
+| **FR-06** | **Student Configuration** | Each student profile must include: **Name**, **Grade**, **Phone Number**, **Preferred Days of the Week** (multiple, e.g., Tuesday, Friday, Saturday), and **Preferred Time**. |
+
+### 2.3. Reporting & UX Requirements
+
+| ID | Requirement | Detail |
+| :--- | :--- | :--- |
+| **FR-07** | **Visual Alerts** | Reporting must include visual cues (color-coding) and alerts for students who have or have not completed their 12 monthly classes. |
+| **FR-08** | **Attendance History** | User must be able to view the **specific dates and times** a student attended in a given month. |
+| **FR-09** | **User Experience** | The application must be **pleasing** (clean design) and **easy to use** (minimal taps for attendance). |
+| **FR-10** | **PWA Capability** | The application must be installable on the user's home screen and offer basic **offline functionality**. |
+
+-----
+
+## 3\. Technical Stack
+
+| Component | Technology | Reasoning |
+| :--- | :--- | :--- |
+| **Frontend (UI & PWA)** | **React.js** (or Vue/Svelte) + **Vite** | Ideal for building fast, single-page applications. Vite simplifies PWA manifest and service worker configuration. |
+| **Database & Hosting** | **Google Firebase Firestore** | Provides a NoSQL, persistent cloud database with real-time updates and free/low-cost hosting (Firebase Hosting). Eliminates the need for server management. |
+| **Styling** | **Tailwind CSS** or **Chakra UI** | Ensures a modern, mobile-first design that is responsive and pleasing, fulfilling FR-09. |
+| **Version Control** | **Git & GitHub** | Mandatory for tracking changes and deployment. |
+
+-----
+
+## 4\. Data Design (Firestore Schema)
+
+The database will consist of two primary collections in Firestore: `students` (configuration) and `attendance` (records).
+
+### 4.1. `students` Collection
+
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| **`id`** | *String* | Unique Document ID (auto-generated) |
+| **`name`** | *String* | Student's Full Name |
+| **`grade`** | *String* | Student's Grade or Subject |
+| **`phoneNumber`** | *String* | Contact number |
+| **`preferredDays`** | **Array of Strings** | List of preferred tuition days (e.g., `["MONDAY", "FRIDAY", "SATURDAY"]`) |
+| **`preferredTime`** | *Time String* | Default time for all preferred days (e.g., `"18:30"`) |
+| **`isActive`** | *Boolean* | `true` (active) / `false` (deactivated/deleted) |
+
+#### Data Example (Student: MEERA)
+
+```json
+{
+  "id": "firestore-unique-id-123",
+  "name": "MEERA",
+  "grade": "1",
+  "phoneNumber": "9837911666",
+  "preferredDays": ["MONDAY", "TUESDAY", "WEDNESDAY"],
+  "preferredTime": "6:30 PM",
+  "isActive": true
+}
+```
+
+### 4.2. `attendance` Collection
+
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| **`id`** | *String* | Unique Document ID (auto-generated) |
+| **`studentId`** | *String* | **Foreign Key** to the `students.id` |
+| **`date`** | **Timestamp** | The date the class was attended (crucial for monthly reporting) |
+| **`time`** | *Time String* | The actual time the class ended (may be an override) |
+
+#### Data Example (Attendance Record)
+
+```json
+{
+  "id": "firestore-attendance-id-456",
+  "studentId": "firestore-unique-id-123", // MEERA
+  "date": "Timestamp(2025-11-20T18:30:00Z)", 
+  "time": "6:30 PM"
+}
+```
+
+-----
+
+## 5\. Enhanced Design & User Experience (UX)
+
+### 5.1. Attendance View (Main Screen)
+
+The Attendance View prioritizes speed and context.
+
+#### 5.1.1. Core Filtering Logic
+
+1.  **Date Input:** The system reads the date selected in the Date Picker (e.g., Nov 24, 2025).
+2.  **Day of Week Extraction:** The system determines the day of the week for that date (e.g., "MONDAY").
+3.  **Prioritization:** The application filters the `students` list to identify students whose `preferredDays` array **includes** the extracted day of the week ("MONDAY"). These students are sorted to the top and visually highlighted.
+
+#### 5.1.2. Time Override Modal
+
+When attendance is marked, the modal requires explicit confirmation:
+
+  * **Default Time:** The input field for time is pre-populated using the student's `preferredTime`.
+  * **User Action:** If the user does not change the time, the default is saved. If the user edits the time (e.g., changed to 7:00 PM), the edited time is saved, ensuring FR-03 is met.
+  * **Past Date Check:** If a past date is selected, the list will also fetch attendance records from the `attendance` collection for that date. If a record exists, the checkbox is pre-checked, and clicking it opens an **"Edit/Delete Attendance"** modal instead of a new entry modal.
+
+### 5.2. Reporting & Management View
+
+This view provides necessary administrative control and critical financial/performance alerts.
+
+#### 5.2.1. Monthly Reporting Logic
+
+The system must perform a two-step query to generate the dashboard:
+
+1.  **Date Range Query:**
+
+      * Find the start and end `Timestamp` for the selected month (e.g., Nov 1, 2025, 00:00:00 to Nov 30, 2025, 23:59:59).
+      * Query the `attendance` collection where `date` is $\ge$ Start Date and `date` is $\le$ End Date.
+
+2.  **Aggregation:**
+
+      * The results are processed locally in the application (or using a Firebase Function for scalability) to **count** the number of records associated with each `studentId`.
+
+#### 5.2.2. Alert Logic (FR-07)
+
+The displayed progress bar and alert text should use a tiered system based on the count *relative to the time elapsed* in the month (optional but recommended for proactive alerts):
+
+| Status | Color | Condition (Simplified) |
+| :--- | :--- | :--- |
+| **Completed** | **Green** | Class Count $\ge 12$ |
+| **On Track** | **Blue/Gray** | Class Count $\ge$ (Days Elapsed / 30) \* 12 |
+| **Needs Attention** | **Yellow** | Class Count is $\le$ 2 classes behind the 'On Track' target. |
+| **Critically Low** | **Red** | Class Count is $\ge$ 3 classes behind the 'On Track' target. |
+
+#### 5.2.3. Management (CRUD)
+
+  * **Deactivation:** When a student is "deleted," the `isActive` flag is set to `false`. This removes them from the Attendance and Reporting views but preserves their attendance history in the database for financial or audit purposes.
+
+### 5.3. Design Principles (FR-09)
+
+  * **Color Palette:** Use a clean, professional palette (e.g., primary blue/indigo for actions, with high contrast whites/grays for background). Use a consistent red/yellow/green semantic color system for alerts.
+  * **Responsiveness:** Use a **mobile-first** approach (Tailwind/Chakra) to ensure the interface is perfectly sized and functional on a phone/tablet, as this is the primary use case.
+  * **Accessibility:** Ensure large, tappable areas for checkboxes and buttons to facilitate quick use.
+
+-----
+
+## 6\. Implementation Roadmap
+
+1.  **Setup:** Initialize the React/Vite project and configure Firebase SDK.
+2.  **Data Modeling:** Implement the **`students`** and **`attendance`** data structures in the application, focusing on the Array type for `preferredDays`.
+3.  **Management Module:** Build the forms and logic for FR-05 (CRUD) to populate the `students` collection.
+4.  **Attendance Module:** Implement FR-01, FR-02, FR-03, including the Date Picker and the complex day-of-week filtering logic.
+5.  **Reporting Module:** Implement the monthly Firestore querying and aggregation logic (FR-04, FR-07, FR-08).
+6.  **PWA Features:** Configure the Web App Manifest and Service Worker for offline capability (FR-10).
