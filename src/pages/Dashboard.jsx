@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
-import { Users, TrendingUp, CheckCircle2, AlertTriangle, Calendar } from 'lucide-react';
+import { Users, TrendingUp, CheckCircle2, AlertTriangle, Calendar, Award, Target, Clock } from 'lucide-react';
 
 export default function Dashboard() {
     const [students, setStudents] = useState([]);
@@ -59,52 +59,66 @@ export default function Dashboard() {
         return count < 12 && count < 8;
     }).length;
     const totalClasses = Object.values(attendanceCounts).reduce((sum, count) => sum + count, 0);
+    const avgClasses = students.length > 0 ? (totalClasses / students.length).toFixed(1) : 0;
 
     return (
-        <div className="max-w-7xl mx-auto">
-            {/* Compact Header with Stats */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-5 mb-4 text-white">
-                <div className="flex items-center justify-between mb-3">
-                    <div>
-                        <h1 className="text-2xl font-bold">Monthly Overview</h1>
-                        <p className="text-blue-100 text-sm flex items-center mt-1">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {monthName}
-                        </p>
+        <div className="max-w-7xl mx-auto space-y-6">
+            {/* Colorful Stats Header */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                            <Users className="w-6 h-6" />
+                        </div>
+                        <TrendingUp className="w-5 h-5 opacity-50" />
                     </div>
+                    <p className="text-3xl font-bold mb-1">{students.length}</p>
+                    <p className="text-blue-100 text-sm font-medium">Total Students</p>
                 </div>
 
-                <div className="grid grid-cols-4 gap-4">
-                    <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-                        <div className="flex items-center space-x-2 mb-1">
-                            <Users className="w-4 h-4" />
-                            <p className="text-xs font-medium opacity-90">Students</p>
+                <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                            <CheckCircle2 className="w-6 h-6" />
                         </div>
-                        <p className="text-2xl font-bold">{students.length}</p>
+                        <Award className="w-5 h-5 opacity-50" />
                     </div>
+                    <p className="text-3xl font-bold mb-1">{completedCount}</p>
+                    <p className="text-green-100 text-sm font-medium">Completed Goal</p>
+                </div>
 
-                    <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-                        <div className="flex items-center space-x-2 mb-1">
-                            <CheckCircle2 className="w-4 h-4" />
-                            <p className="text-xs font-medium opacity-90">Completed</p>
+                <div className="bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                            <AlertTriangle className="w-6 h-6" />
                         </div>
-                        <p className="text-2xl font-bold">{completedCount}</p>
+                        <Target className="w-5 h-5 opacity-50" />
                     </div>
+                    <p className="text-3xl font-bold mb-1">{needsAttentionCount}</p>
+                    <p className="text-orange-100 text-sm font-medium">Need Attention</p>
+                </div>
 
-                    <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-                        <div className="flex items-center space-x-2 mb-1">
-                            <AlertTriangle className="w-4 h-4" />
-                            <p className="text-xs font-medium opacity-90">At Risk</p>
+                <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-lg p-5 text-white transform hover:scale-105 transition-transform">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="p-3 bg-white/20 rounded-xl backdrop-blur">
+                            <Clock className="w-6 h-6" />
                         </div>
-                        <p className="text-2xl font-bold">{needsAttentionCount}</p>
+                        <Calendar className="w-5 h-5 opacity-50" />
                     </div>
+                    <p className="text-3xl font-bold mb-1">{avgClasses}</p>
+                    <p className="text-purple-100 text-sm font-medium">Avg Classes</p>
+                </div>
+            </div>
 
-                    <div className="bg-white/10 backdrop-blur rounded-lg p-3">
-                        <div className="flex items-center space-x-2 mb-1">
-                            <TrendingUp className="w-4 h-4" />
-                            <p className="text-xs font-medium opacity-90">Total Classes</p>
-                        </div>
-                        <p className="text-2xl font-bold">{totalClasses}</p>
+            {/* Month Header */}
+            <div className="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl shadow-lg p-4 text-white">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                        <Calendar className="w-5 h-5" />
+                        <h2 className="text-xl font-bold">{monthName}</h2>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm">
+                        <span className="px-3 py-1 bg-white/10 rounded-lg">Target: 12 classes</span>
                     </div>
                 </div>
             </div>
@@ -112,49 +126,113 @@ export default function Dashboard() {
             {loading ? (
                 <p className="text-gray-500">Loading...</p>
             ) : (
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-                    <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-                        <h2 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Student Progress</h2>
-                    </div>
-                    <div className="divide-y divide-gray-100">
-                        {students.map(student => {
-                            const count = attendanceCounts[student.id] || 0;
-                            const status = getStatus(count);
-                            const percentage = Math.min((count / 12) * 100, 100);
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {students.map(student => {
+                        const count = attendanceCounts[student.id] || 0;
+                        const status = getStatus(count);
+                        const percentage = Math.min((count / 12) * 100, 100);
 
-                            const statusConfig = {
-                                completed: { bg: 'bg-green-100', text: 'text-green-700', bar: 'bg-green-500', dot: 'bg-green-500' },
-                                'on-track': { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500', dot: 'bg-blue-500' },
-                                attention: { bg: 'bg-orange-100', text: 'text-orange-700', bar: 'bg-orange-500', dot: 'bg-orange-500' },
-                                critical: { bg: 'bg-red-100', text: 'text-red-700', bar: 'bg-red-500', dot: 'bg-red-500' }
-                            };
+                        const statusConfig = {
+                            completed: {
+                                gradient: 'from-green-500 to-emerald-600',
+                                bg: 'bg-green-50',
+                                text: 'text-green-700',
+                                icon: CheckCircle2,
+                                label: 'Completed'
+                            },
+                            'on-track': {
+                                gradient: 'from-blue-500 to-cyan-600',
+                                bg: 'bg-blue-50',
+                                text: 'text-blue-700',
+                                icon: TrendingUp,
+                                label: 'On Track'
+                            },
+                            attention: {
+                                gradient: 'from-yellow-500 to-orange-500',
+                                bg: 'bg-orange-50',
+                                text: 'text-orange-700',
+                                icon: AlertTriangle,
+                                label: 'Needs Attention'
+                            },
+                            critical: {
+                                gradient: 'from-red-500 to-pink-600',
+                                bg: 'bg-red-50',
+                                text: 'text-red-700',
+                                icon: AlertTriangle,
+                                label: 'Critical'
+                            }
+                        };
 
-                            const config = statusConfig[status];
+                        const config = statusConfig[status];
+                        const StatusIcon = config.icon;
 
-                            return (
-                                <div key={student.id} className="px-4 py-2 hover:bg-gray-50 transition-colors">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center space-x-3 flex-1 min-w-0">
-                                            <div className={`w-2 h-2 rounded-full ${config.dot} flex-shrink-0`}></div>
-                                            <div className="flex items-baseline space-x-2 min-w-0">
-                                                <h3 className="text-sm font-semibold text-gray-800 truncate">{student.name}</h3>
-                                                <span className="text-xs text-gray-400 flex-shrink-0">Gr {student.grade}</span>
+                        return (
+                            <div key={student.id} className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow border border-gray-100">
+                                {/* Gradient Top Bar */}
+                                <div className={`h-2 bg-gradient-to-r ${config.gradient}`}></div>
+
+                                <div className="p-5">
+                                    {/* Header */}
+                                    <div className="flex items-start justify-between mb-4">
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-bold text-gray-800 mb-1">{student.name}</h3>
+                                            <div className="flex items-center space-x-2">
+                                                <span className="text-sm text-gray-500">Grade {student.grade}</span>
+                                                <span className="text-gray-300">•</span>
+                                                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${config.bg} ${config.text}`}>
+                                                    {config.label}
+                                                </span>
                                             </div>
                                         </div>
-                                        <div className="flex items-center space-x-3 flex-shrink-0">
-                                            <div className="w-32 bg-gray-200 rounded-full h-1.5">
+                                        <div className={`p-3 rounded-xl ${config.bg}`}>
+                                            <StatusIcon className={`w-6 h-6 ${config.text}`} />
+                                        </div>
+                                    </div>
+
+                                    {/* Progress Section */}
+                                    <div className="space-y-3">
+                                        <div className="flex items-end justify-between">
+                                            <div>
+                                                <p className="text-xs text-gray-500 mb-1">Classes Attended</p>
+                                                <p className="text-3xl font-bold text-gray-800">{count}<span className="text-lg text-gray-400">/12</span></p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-xs text-gray-500 mb-1">Completion</p>
+                                                <p className="text-2xl font-bold text-gray-800">{Math.round(percentage)}%</p>
+                                            </div>
+                                        </div>
+
+                                        {/* Gradient Progress Bar */}
+                                        <div className="relative">
+                                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                                                 <div
-                                                    className={`${config.bar} h-1.5 rounded-full transition-all duration-500`}
+                                                    className={`bg-gradient-to-r ${config.gradient} h-3 rounded-full transition-all duration-700 shadow-lg`}
                                                     style={{ width: `${percentage}%` }}
                                                 ></div>
                                             </div>
-                                            <span className="text-lg font-bold text-gray-800 w-12 text-right">{count}<span className="text-xs text-gray-400">/12</span></span>
+                                        </div>
+
+                                        {/* Mini Stats */}
+                                        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                                            <div className="flex items-center space-x-2 text-xs text-gray-500">
+                                                <Target className="w-3 h-3" />
+                                                <span>{12 - count} more to goal</span>
+                                            </div>
+                                            <div className="flex items-center space-x-1">
+                                                {[...Array(12)].map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`w-1.5 h-1.5 rounded-full ${i < count ? `bg-gradient-to-r ${config.gradient}` : 'bg-gray-200'
+                                                            }`}
+                                                    ></div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            );
-                        })}
-                    </div>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </div>
