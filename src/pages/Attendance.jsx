@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Check, X, Edit, Trash2 } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 
@@ -153,20 +154,15 @@ export default function Attendance() {
                         {sortedStudents.map((student) => {
                             const isPresent = !!attendanceRecords[student.id];
                             const isPreferredDay = student.preferredDays?.includes(currentDay);
-
                             return (
-                                <li
+                                <div
                                     key={student.id}
-                                    className={`px-4 py-4 sm:px-6 flex justify-between items-center cursor-pointer hover:bg-gray-50 ${isPreferredDay ? 'bg-indigo-50' : ''}`}
+                                    className={`relative p-4 rounded-xl shadow-md flex justify-between items-center mb-4 ${isPreferredDay ? 'bg-indigo-100' : 'bg-white'} hover:bg-indigo-50 transition-colors`}
                                     onClick={() => handleStudentClick(student)}
                                 >
                                     <div className="flex items-center">
-                                        <div className={`flex-shrink-0 h-5 w-5 rounded border ${isPresent ? 'bg-green-500 border-green-500' : 'border-gray-300'}`}>
-                                            {isPresent && (
-                                                <svg className="h-4 w-4 text-white mx-auto" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                </svg>
-                                            )}
+                                        <div className={`flex-shrink-0 h-6 w-6 rounded-full border ${isPresent ? 'bg-green-500 border-green-500' : 'border-gray-300'} flex items-center justify-center`}>
+                                            {isPresent ? <Check className="text-white w-4 h-4" /> : <X className="text-gray-400 w-4 h-4" />}
                                         </div>
                                         <div className="ml-4">
                                             <h3 className="text-lg font-medium text-gray-900">{student.name}</h3>
@@ -175,12 +171,40 @@ export default function Attendance() {
                                             </p>
                                         </div>
                                     </div>
-                                    {isPreferredDay && (
-                                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                                            Scheduled
-                                        </span>
-                                    )}
-                                </li>
+                                    <div className="flex space-x-2">
+                                        {isPresent && (
+                                            <>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedStudent(student);
+                                                        setTime(attendanceRecords[student.id].time);
+                                                        setModalOpen(true);
+                                                    }}
+                                                    className="p-1 text-indigo-600 hover:text-indigo-800"
+                                                    title="Edit Attendance"
+                                                >
+                                                    <Edit className="w-5 h-5" />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const record = attendanceRecords[student.id];
+                                                        if (record && window.confirm('Remove attendance record?')) {
+                                                            deleteDoc(doc(db, "attendance", record.id))
+                                                                .then(() => fetchData())
+                                                                .catch(console.error);
+                                                        }
+                                                    }}
+                                                    className="p-1 text-red-600 hover:text-red-800"
+                                                    title="Delete Attendance"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
                             );
                         })}
                     </ul>
