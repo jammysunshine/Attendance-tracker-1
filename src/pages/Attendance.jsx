@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Check, X, Clock, Calendar as CalendarIcon, UserCheck } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -119,23 +119,28 @@ export default function Attendance() {
 
     return (
         <div className="space-y-6">
-            <Card className="border-0 shadow-lg">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
                 <CardHeader>
                     <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-2xl">Attendance Tracking</CardTitle>
-                            <CardDescription className="text-lg mt-1">
-                                <span className="font-semibold text-primary">{presentCount}</span> of {students.length} students present
-                            </CardDescription>
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
+                                <UserCheck className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Attendance Tracking</CardTitle>
+                                <CardDescription className="text-blue-100">
+                                    <span className="font-semibold text-white">{presentCount}</span> of {students.length} students present today
+                                </CardDescription>
+                            </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <Input
                                 type="date"
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
-                                className="w-auto"
+                                className="w-auto bg-white/20 border-white/30 text-white placeholder:text-white/60"
                             />
-                            <Badge variant="outline" className="text-sm px-3 py-1">
+                            <Badge variant="outline" className="text-sm px-3 py-1 bg-white/20 border-white/30 text-white">
                                 <CalendarIcon className="w-3 h-3 mr-1" />
                                 {currentDay}
                             </Badge>
@@ -145,7 +150,11 @@ export default function Attendance() {
             </Card>
 
             {loading ? (
-                <p className="text-muted-foreground">Loading...</p>
+                <Card className="border-0 shadow-lg">
+                    <CardContent className="p-8 text-center">
+                        <p className="text-muted-foreground">Loading attendance data...</p>
+                    </CardContent>
+                </Card>
             ) : (
                 <div className="space-y-3">
                     {sortedStudents.map((student) => {

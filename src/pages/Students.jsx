@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where } from 'firebase/firestore';
+import { Users, Edit, Trash2, Plus, Clock, Calendar } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function Students() {
     const [students, setStudents] = useState([]);
@@ -97,113 +104,166 @@ export default function Students() {
     }
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-                <button
-                    onClick={() => handleOpenModal()}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-                >
-                    Add Student
-                </button>
-            </div>
+        <div className="space-y-6">
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
+                                <Users className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-2xl">Student Management</CardTitle>
+                                <CardDescription className="text-indigo-100">Manage your student database and preferences</CardDescription>
+                            </div>
+                        </div>
+                        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                            <DialogTrigger asChild>
+                                <Button
+                                    onClick={() => handleOpenModal()}
+                                    className="bg-white/20 hover:bg-white/30 text-white border-white/30 shadow-lg"
+                                >
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Add Student
+                                </Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle>{currentStudent ? 'Edit Student' : 'Add Student'}</DialogTitle>
+                                    <DialogDescription>
+                                        {currentStudent ? 'Update student information' : 'Add a new student to your database'}
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name">Name</Label>
+                                        <Input
+                                            id="name"
+                                            type="text"
+                                            placeholder="Student name"
+                                            value={name}
+                                            onChange={e => setName(e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="grade">Grade</Label>
+                                        <Input
+                                            id="grade"
+                                            type="text"
+                                            placeholder="Grade level"
+                                            value={grade}
+                                            onChange={e => setGrade(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">Phone Number</Label>
+                                        <Input
+                                            id="phone"
+                                            type="tel"
+                                            placeholder="Phone number"
+                                            value={phone}
+                                            onChange={e => setPhone(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Preferred Days</Label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {daysOfWeek.map(day => (
+                                                <Button
+                                                    key={day}
+                                                    type="button"
+                                                    variant={days.includes(day) ? "default" : "outline"}
+                                                    size="sm"
+                                                    onClick={() => handleDayToggle(day)}
+                                                >
+                                                    {day.slice(0, 3)}
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="time">Preferred Time</Label>
+                                        <Input
+                                            id="time"
+                                            type="time"
+                                            value={time}
+                                            onChange={e => setTime(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="flex justify-end gap-2 pt-4">
+                                        <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                                            Cancel
+                                        </Button>
+                                        <Button type="submit">
+                                            {currentStudent ? 'Update' : 'Add'} Student
+                                        </Button>
+                                    </div>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+                    </div>
+                </CardHeader>
+            </Card>
 
             {loading ? (
-                <p>Loading...</p>
+                <Card className="border-0 shadow-lg">
+                    <CardContent className="p-8 text-center">
+                        <p className="text-muted-foreground">Loading students...</p>
+                    </CardContent>
+                </Card>
             ) : (
-                <div className="bg-white shadow overflow-hidden sm:rounded-md">
-                    <ul className="divide-y divide-gray-200">
-                        {students.map((student) => (
-                            <li key={student.id} className="px-4 py-4 sm:px-6 flex justify-between items-center">
-                                <div>
-                                    <h3 className="text-lg font-medium text-indigo-600">{student.name}</h3>
-                                    <p className="text-sm text-gray-500">Grade: {student.grade} | {student.phoneNumber}</p>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        {student.preferredDays.join(', ')} @ {student.preferredTime}
-                                    </p>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <button onClick={() => handleOpenModal(student)} className="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                    <button onClick={() => handleDelete(student.id)} className="text-red-600 hover:text-red-900">Delete</button>
-                                </div>
-                            </li>
-                        ))}
-                        {students.length === 0 && (
-                            <li className="px-4 py-8 text-center text-gray-500">
-                                No students found. Add one to get started.
-                            </li>
-                        )}
-                    </ul>
-                </div>
-            )}
-
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg max-w-md w-full p-6">
-                        <h2 className="text-xl font-bold mb-4">{currentStudent ? 'Edit Student' : 'Add Student'}</h2>
-                        <form onSubmit={handleSubmit}>
-                            <div className="space-y-4">
-                                <input
-                                    type="text"
-                                    placeholder="Name"
-                                    value={name}
-                                    onChange={e => setName(e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Grade"
-                                    value={grade}
-                                    onChange={e => setGrade(e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                                <input
-                                    type="tel"
-                                    placeholder="Phone Number"
-                                    value={phone}
-                                    onChange={e => setPhone(e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Days</label>
-                                    <div className="flex flex-wrap gap-2">
-                                        {daysOfWeek.map(day => (
-                                            <button
-                                                key={day}
-                                                type="button"
-                                                onClick={() => handleDayToggle(day)}
-                                                className={`px-2 py-1 text-xs rounded ${days.includes(day) ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`}
-                                            >
-                                                {day.slice(0, 3)}
-                                            </button>
-                                        ))}
+                <div className="space-y-4">
+                    {students.map((student) => (
+                        <Card key={student.id} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-2">
+                                        <h3 className="text-xl font-semibold text-primary">{student.name}</h3>
+                                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                                            <span className="flex items-center gap-1">
+                                                <Badge variant="outline">Grade {student.grade}</Badge>
+                                            </span>
+                                            <span>{student.phoneNumber}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <Calendar className="h-4 w-4 text-muted-foreground" />
+                                            <span>{student.preferredDays?.join(', ') || 'No preferred days'}</span>
+                                            <Clock className="h-4 w-4 text-muted-foreground ml-2" />
+                                            <span>{student.preferredTime || '18:30'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleOpenModal(student)}
+                                        >
+                                            <Edit className="w-4 h-4 mr-2" />
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            size="sm"
+                                            onClick={() => handleDelete(student.id)}
+                                        >
+                                            <Trash2 className="w-4 h-4 mr-2" />
+                                            Delete
+                                        </Button>
                                     </div>
                                 </div>
-                                <input
-                                    type="time"
-                                    value={time}
-                                    onChange={e => setTime(e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                            </div>
-                            <div className="mt-6 flex justify-end space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 border rounded text-gray-700 hover:bg-gray-50"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-                                >
-                                    Save
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    {students.length === 0 && (
+                        <Card className="border-0 shadow-lg">
+                            <CardContent className="p-12 text-center">
+                                <Users className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+                                <h3 className="text-lg font-medium text-muted-foreground mb-2">No students found</h3>
+                                <p className="text-sm text-muted-foreground">Add your first student to get started.</p>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
             )}
         </div>

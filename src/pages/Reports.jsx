@@ -93,7 +93,11 @@ export default function Reports() {
             </Card>
 
             {loading ? (
-                <p className="text-muted-foreground">Loading...</p>
+                <Card className="border-0 shadow-lg">
+                    <CardContent className="p-8 text-center">
+                        <p className="text-muted-foreground">Loading reports...</p>
+                    </CardContent>
+                </Card>
             ) : (
                 <div className="space-y-4">
                     {students.map(student => {

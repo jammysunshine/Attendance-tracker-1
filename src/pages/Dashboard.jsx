@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
-import { Users, TrendingUp, CheckCircle2, AlertTriangle, Calendar, Award, Target } from 'lucide-react';
+import { TrendingUp, CheckCircle2, AlertTriangle, Calendar, Target, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -56,7 +56,6 @@ export default function Dashboard() {
     }
 
     const monthName = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
-    const completedCount = students.filter(s => (attendanceCounts[s.id] || 0) >= 12).length;
     const needsAttentionCount = students.filter(s => {
         const count = attendanceCounts[s.id] || 0;
         return count < 12 && count < 8;
@@ -93,66 +92,53 @@ export default function Dashboard() {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Premium Stats Cards */}
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white card-hover overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                        <CardTitle className="text-sm font-medium text-blue-50">Total Students</CardTitle>
-                        <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
-                            <Users className="h-4 w-4 text-white" />
+            {/* Professional Dashboard Header */}
+            <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-white/20 backdrop-blur rounded-lg">
+                            <BarChart3 className="h-6 w-6" />
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold tracking-tight">{students.length}</div>
-                        <p className="text-xs text-blue-50 mt-1 font-medium">Active students</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white card-hover overflow-hidden relative">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                        <CardTitle className="text-sm font-medium text-green-50">Completed Goal</CardTitle>
-                        <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
-                            <Award className="h-4 w-4 text-white" />
+                        <div>
+                            <CardTitle className="text-2xl">Dashboard Overview</CardTitle>
+                            <CardDescription className="text-blue-100">Monitor student attendance and performance metrics</CardDescription>
                         </div>
-                    </CardHeader>
-                    <CardContent className="relative z-10">
-                        <div className="text-4xl font-bold tracking-tight">{completedCount}</div>
-                        <p className="text-xs text-green-50 mt-1 font-medium">12+ classes this month</p>
-                    </CardContent>
-                </Card>
+                    </div>
+                </CardHeader>
+            </Card>
 
+            {/* Key Performance Metrics */}
+            <div className="grid gap-6 md:grid-cols-2">
                 <Card className="border-0 shadow-2xl bg-gradient-to-br from-orange-500 to-red-500 text-white card-hover overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                        <CardTitle className="text-sm font-medium text-orange-50">Need Attention</CardTitle>
+                        <CardTitle className="text-sm font-medium text-orange-50">Students Needing Attention</CardTitle>
                         <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
                             <AlertTriangle className="h-4 w-4 text-white" />
                         </div>
                     </CardHeader>
                     <CardContent className="relative z-10">
                         <div className="text-4xl font-bold tracking-tight">{needsAttentionCount}</div>
-                        <p className="text-xs text-orange-50 mt-1 font-medium">Below target pace</p>
+                        <p className="text-xs text-orange-50 mt-1 font-medium">Below target pace this month</p>
                     </CardContent>
                 </Card>
 
                 <Card className="border-0 shadow-2xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white card-hover overflow-hidden relative">
                     <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16"></div>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-                        <CardTitle className="text-sm font-medium text-purple-50">Avg Classes</CardTitle>
+                        <CardTitle className="text-sm font-medium text-purple-50">Average Classes</CardTitle>
                         <div className="p-2 bg-white/20 rounded-lg backdrop-blur">
                             <TrendingUp className="h-4 w-4 text-white" />
                         </div>
                     </CardHeader>
                     <CardContent className="relative z-10">
                         <div className="text-4xl font-bold tracking-tight">{avgClasses}</div>
-                        <p className="text-xs text-purple-50 mt-1 font-medium">Per student</p>
+                        <p className="text-xs text-purple-50 mt-1 font-medium">Classes per student this month</p>
                     </CardContent>
                 </Card>
             </div>
 
-            {/* Month Header */}
+            {/* Student Progress Section */}
             <Card className="border-0 shadow-xl backdrop-blur-sm bg-white/95">
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -162,16 +148,20 @@ export default function Dashboard() {
                             </div>
                             <div>
                                 <CardTitle className="text-2xl tracking-tight">{monthName}</CardTitle>
-                                <CardDescription className="text-base">Student Progress Overview</CardDescription>
+                                <CardDescription className="text-base">Individual Student Progress Overview</CardDescription>
                             </div>
                         </div>
-                        <Badge variant="outline" className="text-sm px-4 py-1.5 font-medium">Target: 12 classes</Badge>
+                        <Badge variant="outline" className="text-sm px-4 py-1.5 font-medium">Monthly Target: 12 classes</Badge>
                     </div>
                 </CardHeader>
             </Card>
 
             {loading ? (
-                <p className="text-muted-foreground">Loading...</p>
+                <Card className="border-0 shadow-lg">
+                    <CardContent className="p-8 text-center">
+                        <p className="text-muted-foreground">Loading dashboard data...</p>
+                    </CardContent>
+                </Card>
             ) : (
                 <div className="grid gap-6 md:grid-cols-2">
                     {students.map(student => {
@@ -234,6 +224,15 @@ export default function Dashboard() {
                         );
                     })}
                 </div>
+            )}
+            {!loading && students.length === 0 && (
+                <Card className="border-0 shadow-lg">
+                    <CardContent className="p-12 text-center">
+                        <Users className="h-16 w-16 text-muted-foreground/30 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-muted-foreground mb-2">No students found</h3>
+                        <p className="text-sm text-muted-foreground">Add students to start tracking attendance and view dashboard metrics.</p>
+                    </CardContent>
+                </Card>
             )}
         </div>
     );
